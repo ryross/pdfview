@@ -18,8 +18,17 @@ Or clone the the module separately:
 
 ### Update DOMPDF
 
+Now install DOMPDF using the submodule:
+
     cd modules/pdfview
     git submodule update --init
+
+This will install DOMPDF to `vendor/dompdf/dompdf` from the [DOMPDF Git mirror](http://github.com/shadowhand/dompdf). For DOMPDF to work properly, the `fonts` directory must be writable:
+
+    # Replace "http" with your web server user and group!
+    chown http:http vendor/dompdf/dompdf/lib/fonts
+    # An insecure alternative:
+    # chmod 0777 vendor/dompdf/dompdf/lib/fonts
 
 ### Configuration
 
