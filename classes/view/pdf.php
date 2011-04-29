@@ -23,6 +23,7 @@ class View_PDF extends View {
 
 		// Render the HTML to a PDF
 		$pdf = new DOMPDF;
+                $pdf->set_paper("a4");
 		$pdf->load_html($html);
 		$pdf->render();
 
