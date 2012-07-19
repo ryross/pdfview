@@ -3,6 +3,11 @@
 /**
  * Tests View_PDF classs
  *
+ * [!!] Note that there are significant test sequence dependencies in this test
+ * case because of the underlying global state of DOMPDF and therefore of the
+ * View_PDF class. When adding tests, take great care that you understand the
+ * required sequence and global state context at any given point.
+ *
  * @group pdfview
  * @group pdfview.core
  *
@@ -15,6 +20,7 @@
 class PDFView_ViewTest extends Unittest_TestCase
 {
 	protected static $old_modules = array();
+	protected static $expect_dompdf_presence = FALSE;
 
 	/**
 	 * Setups the filesystem for test view files
@@ -39,6 +45,25 @@ class PDFView_ViewTest extends Unittest_TestCase
 	public static function teardownAfterClass()
 	{
 		Kohana::modules(self::$old_modules);
+	}
+
+	/**
+	 * Verify the dompdf state as a precondition on every test
+	 */
+	public function setUp()
+	{
+		parent::setUp();
+		$this->verify_dompdf_state();
+	}
+
+	/**
+	 * Check whether DOMPDF is or is not loaded yet
+	 */
+	protected function verify_dompdf_state()
+	{
+		$state = self::$expect_dompdf_presence;
+		$this->assertEquals($state, class_exists('DOMPDF', FALSE), "Verfiying whether DOMPDF class exists");
+		$this->assertEquals($state, defined('DOMPDF_DIR'), "Verifying whether DOMPDF_DIR is defined");
 	}
 
 	/**
@@ -114,12 +139,13 @@ class PDFView_ViewTest extends Unittest_TestCase
 	/**
 	 * dompdf is not included until required - to allow configuration of
 	 * dompdf properties
+	 *
+	 * @depends test_factory_creates_new_instance
 	 */
 	public function test_dompdf_not_loaded_until_required()
 	{
-		$view = View_PDF::factory('exists');
-		$this->assertFalse(class_exists('DOMPDF', FALSE));
-		$this->assertFalse(defined('DOMPDF_DIR'));
+		// The actual test for this is handled by the verify_dompdf_state in the
+		// setUp hook
 	}
 
 	/*
@@ -135,6 +161,7 @@ class PDFView_ViewTest extends Unittest_TestCase
 	 */
 	public function test_dompdf_returns_instance()
 	{
+		self::$expect_dompdf_presence = TRUE;
 		$view = View_PDF::factory('exists');
 		$this->assertInstanceOf('DOMPDF', $view->dompdf());
 	}
