@@ -130,7 +130,7 @@ class PDFView_ViewTest extends Unittest_TestCase
 	{
 		// Set the Kohana Config to something unusual for testing
 		$config = Kohana::$config->load('dompdf');
-		$config->set('DOMPDF_DEFAULT_PAPER_SIZE', 'a5');
+		$config['options'][View_PDF::DOMPDF_DEFAULT_PAPER_SIZE] = 'a5';
 
 		// Check that the config is loaded
 		View_PDF::load_default_options();
@@ -151,7 +151,7 @@ class PDFView_ViewTest extends Unittest_TestCase
 				'Verifying expected state');
 
 		$config = Kohana::$config->load('dompdf');
-		$config->set('DOMPDF_DEFAULT_PAPER_SIZE', 'a4');
+		$config['options'][View_PDF::DOMPDF_DEFAULT_PAPER_SIZE] = 'a4';
 
 
 		// Check that the config is not reloaded by the next factory call
