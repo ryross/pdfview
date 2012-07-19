@@ -140,7 +140,7 @@ class PDFView_ViewTest extends Unittest_TestCase
 	/**
 	 * Tests that the factory doesn't initialise options once they have been set
 	 *
-	 * @depends test_factory_initialisies_options_if_empty
+	 * @depends test_factory_initialises_options_if_empty
 	 * @depends test_loads_default_dompdf_options_from_config
 	 */
 	public function test_factory_only_initialises_options_once()
