@@ -39,7 +39,7 @@ class View_PDF extends View {
 	/**
 	 * @var array An array of dompdf config options
 	 */
-	protected static $_options = array();
+	protected static $_options = NULL;
 
 	/**
 	 * @var DOMPDF Internal reference to this instance's DOMPDF instance
@@ -72,7 +72,33 @@ class View_PDF extends View {
 	}
 
 	/**
-	 * Get a dompdf option setting - this will load defaults from Kohana config files.
+	 * Loads the dompdf options from the Kohana config system
+	 *
+	 * @return void
+	 */
+	public static function load_default_options()
+	{
+		// Only if not initialised
+		if (self::$_dompdf_initialised)
+		{
+			throw new Exception_DOMPDF_Initialised("Could not load DOMPDF options as DOMPDF has already been initialised");
+		}
+
+		if (isset(Kohana::$config))
+		{
+			// Handle KO 3.2 style
+			$options = Kohana::$config->load('dompdf.options');
+		}
+		else
+		{
+			// Handle KO 3.0 - 3.1
+			$options = Kohana::config('dompdf.options');
+		}
+		self::$_options = $options;
+	}
+
+	/**
+	 * Get a dompdf option setting
 	 *
 	 * @param string $key      Name of the option, or NULL to retrieve all options
 	 * @param mixed  $default  The default value if the option is not found
@@ -80,11 +106,6 @@ class View_PDF extends View {
 	 */
 	public static function get_dompdf_option($key = NULL, $default = NULL)
 	{
-		if (empty(self::$_options))
-		{
-			$options = Kohana::$config->load('dompdf.options');
-			self::$_options = $options->as_array();
-		}
 		if ($key === NULL)
 		{
 			return self::$_options;
@@ -119,6 +140,12 @@ class View_PDF extends View {
 	 */
 	public static function factory($file = NULL, array $data = NULL)
 	{
+		// Initialise the options from config
+		if (self::$_options === NULL)
+		{
+			self::load_default_options();
+		}
+
 		return new View_PDF($file, $data);
 	}
 

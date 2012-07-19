@@ -99,6 +99,70 @@ class PDFView_ViewTest extends Unittest_TestCase
 	}
 
 	/**
+	 * The first call to factory initialises the default dompdf options
+	 *
+	 * [!!] This test must run before any other calls to View_PDF::factory
+	 *
+	 */
+	public function test_factory_initialises_options_if_empty()
+	{
+		// Define a test value for ease
+		$test = 'factorytest';
+
+		// Verify that the default is returned initially (because option is not set)
+		$this->assertEquals(
+				$test,
+				View_PDF::get_dompdf_option(View_PDF::DOMPDF_DEFAULT_PAPER_SIZE, $test),
+				'Verify options are not already loaded');
+
+		// Factory a view
+		$view = View_PDF::factory('exists');
+
+		// Verify that the default is not returned (because the option has been loaded)
+		$this->assertNotEquals($test, View_PDF::get_dompdf_option(View_PDF::DOMPDF_DEFAULT_PAPER_SIZE, $test));
+	}
+
+	/**
+	 * Tests that default property values are loaded from kohana config
+	 *
+	 */
+	public function test_loads_default_dompdf_options_from_config()
+	{
+		// Set the Kohana Config to something unusual for testing
+		$config = Kohana::$config->load('dompdf');
+		$config->set('DOMPDF_DEFAULT_PAPER_SIZE', 'a5');
+
+		// Check that the config is loaded
+		View_PDF::load_default_options();
+		$this->assertEquals('a5', View_PDF::get_dompdf_option(View_PDF::DOMPDF_DEFAULT_PAPER_SIZE));
+	}
+
+	/**
+	 * Tests that the factory doesn't initialise options once they have been set
+	 *
+	 * @depends test_factory_initialisies_options_if_empty
+	 * @depends test_loads_default_dompdf_options_from_config
+	 */
+	public function test_factory_only_initialises_options_once()
+	{
+		$this->assertEquals(
+				'a5',
+				View_PDF::get_dompdf_option(View_PDF::DOMPDF_DEFAULT_PAPER_SIZE),
+				'Verifying expected state');
+
+		$config = Kohana::$config->load('dompdf');
+		$config->set('DOMPDF_DEFAULT_PAPER_SIZE', 'a4');
+
+
+		// Check that the config is not reloaded by the next factory call
+		View_PDF::factory('exists');
+
+		$this->assertEquals(
+				'a5',
+				View_PDF::get_dompdf_option(View_PDF::DOMPDF_DEFAULT_PAPER_SIZE));
+	}
+
+	/**
 	 * Tests that the factory method creates a new instance of View_PDF each
 	 * time.
 	 */
@@ -109,20 +173,6 @@ class PDFView_ViewTest extends Unittest_TestCase
 		$this->assertInstanceOf('View_PDF', $view);
 		$this->assertInstanceOf('View_PDF', $view2);
 		$this->assertNotSame($view, $view2);
-	}
-
-	/**
-	 * Tests that default property values are loaded from kohana config - this
-	 * needs to run before other calls to the the options methods
-	 */
-	public function test_loads_dompdf_options_from_config()
-	{
-		// Set the Kohana Config to something unusual for testing
-		$config = Kohana::$config->load('dompdf');
-		$config->set('DOMPDF_DEFAULT_PAPER_SIZE', 'a5');
-
-		// Check that the config is loaded
-		$this->assertEquals('a5', View_PDF::get_dompdf_option(View_PDF::DOMPDF_DEFAULT_PAPER_SIZE));
 	}
 
 	/**
