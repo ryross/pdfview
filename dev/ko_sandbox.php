@@ -69,7 +69,7 @@ foreach ($repos as $module => $repo)
 	else
 	{
 		// Local path is the path above this
-		$modpath = realpath(__DIR__.'/../');
+		$modpath = realpath(dirname(__FILE__).'/../');
 	}
 
 	// Add to module array if required
